@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Voice Agent - Talk to Groq or Grok with your voice, upload images, or use camera for OCR and analysis.">
+  <title>Xylaphone Tango</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    body {
+      font-family: 'Inter', system_ui, sans-serif;
+    }
+    
+    .title-font {
+      font-family: 'Space Grotesk', system_ui, sans-serif;
+    }
+
+    .mic-stage {
+      position: relative;
+      width: 11rem;
+      height: 11rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mic-ripple {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      border: 2px solid rgba(239, 68, 68, 0.45);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mic-stage.state-listening .mic-ripple {
+      animation: mic-ripple 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .mic-stage.state-listening .mic-ripple-2 { animation-delay: 0.8s; }
+    .mic-stage.state-listening .mic-ripple-3 { animation-delay: 1.6s; }
+
+    @keyframes mic-ripple {
+      0% { transform: scale(0.82); opacity: 0.7; }
+      70% { opacity: 0.15; }
+      100% { transform: scale(1.45); opacity: 0; }
+    }
+
+    .mic-levels {
+      position: absolute;
+      bottom: -1.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 2rem;
+    }
+
+    .level-bar {
+      width: 4px;
+      height: 10px;
+      border-radius: 9999px;
+      background: linear-gradient(to top, #ef4444, #fca5a5);
+      transform-origin: bottom;
+    }
+
+    .mic-stage.state-listening .level-bar {
+      animation: level-bounce 0.9s ease-in-out infinite;
+    }
+
+    .mic-stage.state-listening .level-bar:nth-child(1) { animation-delay: 0s; }
+    .mic-stage.state-listening .level-bar:nth-child(2) { animation-delay: 0.1s; }
+    .mic-stage.state-listening .level-bar:nth-child(3) { animation-delay: 0.2s; }
+    .mic-stage.state-listening .level-bar:nth-child(4) { animation-delay: 0.15s; }
+    .mic-stage.state-listening .level-bar:nth-child(5) { animation-delay: 0.05s; }
+
+    @keyframes level-bounce {
+      0%, 100% { height: 10px; opacity: 0.5; }
+      50% { height: 28px; opacity: 1; }
+    }
+
+    .mic-button {
+      position: relative;
+      z-index: 1;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .mic-button.listening {
+      background-color: #ef4444;
+      color: white;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25), 0 8px 32px rgba(239, 68, 68, 0.35);
+    }
+
+    .mic-button.thinking {
+      background-color: #a855f7;
+      color: white;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), 0 8px 32px rgba(168, 85, 247, 0.3);
+      animation: thinking-pulse 1.5s ease-in-out infinite;
+    }
+
+    .mic-button.streaming {
+      background-color: #10b981;
+      color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25), 0 8px 32px rgba(16, 185, 129, 0.3);
+      animation: streaming-pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes thinking-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes streaming-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25), 0 8px 32px rgba(16, 185, 129, 0.3); }
+      50% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15), 0 8px 40px rgba(16, 185, 129, 0.45); }
+    }
+
+    .transcript {
+      min-height: 60px;
+    }
+
+    .message-bubble {
+      max-width: 85%;
+    }
+
+    .landing-tap {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .landing-tap:active {
+      transform: scale(0.98);
+    }
+
+    #landing-google-btn iframe {
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+  <!-- PLACEHOLDER: full file pushed via script -->
+</body>
+</html>

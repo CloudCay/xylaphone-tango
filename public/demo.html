@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Public demo of Xylaphone Tango — voice agent UI, streaming API preview, and architecture. No sign-in required.">
+  <meta name="robots" content="index, follow">
+  <title>Xylaphone Tango — Public Demo</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .title-font { font-family: 'Space Grotesk', system-ui, sans-serif; }
+    .mic-button.streaming {
+      background-color: #10b981; color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25), 0 8px 32px rgba(16, 185, 129, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200 min-h-screen">
+  <main class="max-w-md mx-auto p-4 pb-10">
+    <header class="py-4 space-y-3">
+      <div class="rounded-2xl border border-emerald-500/35 bg-emerald-950/30 px-4 py-3 text-xs text-emerald-100/90">
+        <strong class="text-emerald-300">Public demo</strong> — no Google sign-in, no mic, no private data.
+        <a href="/" class="underline text-emerald-50 ml-1">Open full app →</a>
+      </div>
+      <h1 class="text-3xl font-semibold tracking-tight title-font">Xylaphone Tango</h1>
+      <p class="text-sm text-zinc-400">Voice PWA · Groq primary · Grok fallback · streaming NDJSON · device topic cache</p>
+    </header>
+
+    <!-- UI preview (static + live stream) -->
+    <section class="rounded-3xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-4" aria-label="App UI preview">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs">D</div>
+        <div>
+          <p class="text-sm font-medium">Demo User</p>
+          <p class="text-[10px] text-zinc-500">demo@xylaphonetango.com · 3/25 topics · Free</p>
+        </div>
+      </div>
+
+      <div class="flex justify-center py-4">
+        <button id="demo-mic" type="button" onclick="runStreamDemo()"
+                class="mic-button w-28 h-28 flex flex-col items-center justify-center bg-white text-zinc-900 rounded-full shadow-xl">
+          <i id="demo-mic-icon" class="fa-solid fa-wave-square text-4xl"></i>
+          <span class="text-[10px] font-medium mt-1 tracking-widest">PLAY DEMO</span>
+        </button>
+      </div>
+      <p id="demo-status" class="text-center text-sm text-zinc-400">Tap Play to stream a sample reply from the Worker</p>
+
+      <div class="space-y-3">
+        <div>
+          <p class="text-xs text-zinc-500 mb-1"><i class="fa-solid fa-user mr-1"></i> YOU</p>
+          <div class="bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 text-sm">What is Xylaphone Tango?</div>
+        </div>
+        <div>
+          <div class="flex justify-between items-center text-xs text-zinc-500 mb-1">
+            <span><i class="fa-solid fa-robot mr-1"></i> AGENT</span>
+            <span id="demo-badge" class="px-2 py-0.5 rounded-full bg-emerald-900 text-emerald-400 text-[10px] font-mono hidden">DEMO</span>
+          </div>
+          <div id="demo-agent" class="bg-zinc-900 border border-zinc-800 rounded-3xl px-4 py-3 text-sm min-h-[58px] text-zinc-500">
+            Waiting for demo stream…
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Topic cache preview -->
+    <section class="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-3">
+      <p class="text-xs font-medium text-zinc-300 mb-2">Sample topic cache (per device)</p>
+      <ul class="text-[11px] text-zinc-400 space-y-1.5">
+        <li class="rounded-xl bg-zinc-900 px-2.5 py-2 border border-zinc-800">06/20 · dentist checkup</li>
+        <li class="rounded-xl bg-zinc-900 px-2.5 py-2 border border-zinc-800">06/22 · weather seattle</li>
+        <li class="rounded-xl bg-zinc-900 px-2.5 py-2 border border-zinc-800">06/25 · voice agent demo</li>
+      </ul>
+      <p class="text-[10px] text-zinc-600 mt-2">Stores dates + topics only — not full chat transcripts.</p>
+    </section>
+
+    <!-- Architecture for crawlers / Grok -->
+    <section class="mt-6 space-y-3 text-sm text-zinc-400 leading-relaxed">
+      <h2 class="text-base font-semibold text-zinc-200 title-font">Architecture</h2>
+      <ul class="list-disc pl-5 space-y-1 text-xs">
+        <li><strong class="text-zinc-300">App:</strong> <a href="https://xylaphonetango.com" class="underline">https://xylaphonetango.com</a> (Cloudflare Pages)</li>
+        <li><strong class="text-zinc-300">API:</strong> <a href="https://voice-agent-backend.7zzkwwb7hd.workers.dev" class="underline">voice-agent-backend.7zzkwwb7hd.workers.dev</a> (Cloudflare Worker + D1)</li>
+        <li><strong class="text-zinc-300">Auth:</strong> Google Sign-In (GSI) — required for chat; this page is public</li>
+        <li><strong class="text-zinc-300">LLM:</strong> Groq Llama 3.1 8B instant → xAI Grok 4.3 fallback</li>
+        <li><strong class="text-zinc-300">Streaming:</strong> <code class="bg-zinc-800 px-1 rounded">application/x-ndjson</code> tokens + done event</li>
+        <li><strong class="text-zinc-300">Public demo API:</strong> <code class="bg-zinc-800 px-1 rounded">GET /demo</code> (no auth) — same stream format</li>
+        <li><strong class="text-zinc-300">Voice:</strong> Web Speech API (browser STT + TTS) — not available to crawlers</li>
+      </ul>
+      <p class="text-xs text-zinc-500">
+        Paste this page or <code class="bg-zinc-800 px-1 rounded">/demo.html</code> into Grok Chat for layout + architecture.
+        For code review, share the GitHub repo or paste <code class="bg-zinc-800 px-1 rounded">public/index.html</code> and <code class="bg-zinc-800 px-1 rounded">src/index.ts</code>.
+      </p>
+    </section>
+
+    <footer class="mt-8 text-center text-[10px] text-zinc-600">
+      <a href="/" class="text-zinc-400 hover:text-zinc-300 underline">Sign in for real voice</a>
+      · Demo stream from Worker <code class="bg-zinc-800 px-1 rounded">/demo</code>
+    </footer>
+  </main>
+
+  <script>
+    const DEMO_API = 'https://voice-agent-backend.7zzkwwb7hd.workers.dev/demo';
+    let demoRunning = false;
+
+    async function runStreamDemo() {
+      if (demoRunning) return;
+      demoRunning = true;
+      const agent = document.getElementById('demo-agent');
+      const status = document.getElementById('demo-status');
+      const badge = document.getElementById('demo-badge');
+      const mic = document.getElementById('demo-mic');
+      agent.textContent = '';
+      agent.classList.remove('text-zinc-500');
+      status.textContent = 'Streaming…';
+      mic?.classList.add('streaming');
+      badge?.classList.remove('hidden');
+
+      try {
+        const res = await fetch(DEMO_API);
+        if (!res.ok) throw new Error(`Demo API ${res.status}`);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let full = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const evt = JSON.parse(line);
+            if (evt.type === 'token') {
+              full += evt.text;
+              agent.textContent = full;
+            } else if (evt.type === 'done') {
+              status.textContent = 'Done — this is the same NDJSON format as the live app';
+            }
+          }
+        }
+      } catch (e) {
+        agent.textContent = 'Hi! I am the Xylaphone Tango voice agent. Groq answers first; Grok backs me up if needed.';
+        status.textContent = 'Offline fallback text (API unreachable)';
+        console.warn(e);
+      } finally {
+        demoRunning = false;
+        mic?.classList.remove('streaming');
+      }
+    }
+
+    // Auto-play once so passive viewers (and some crawlers) see content
+    window.addEventListener('load', () => setTimeout(runStreamDemo, 600));
+  </script>
+</body>
+</html>

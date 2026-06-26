@@ -1,0 +1,5 @@
+# Copy this file to .dev.vars for local development
+# NEVER commit .dev.vars
+
+GROQ_API_KEY=your_groq_api_key_here
+XAI_API_KEY=your_xai_api_key_here   # this matches the "xai_api_key" in your CF account secrets

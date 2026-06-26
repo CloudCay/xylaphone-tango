@@ -1,0 +1,22 @@
+name = "voice-agent-backend"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "voice-agent-db"
+database_id = "d18b72e2-746e-4644-ad72-357fdcaf1424"
+
+[vars]
+GOOGLE_CLIENT_ID = "586370784483-it5kk02nf46bn9o1qd60koaf1mft7d3o.apps.googleusercontent.com"
+
+# Secrets (set with wrangler secret put or in dashboard)
+# wrangler secret put XAI_API_KEY
+# wrangler secret put GROQ_API_KEY
+# wrangler secret put ACCESS_TOKEN   # optional fallback (plain string) if not using Google sign-in
+
+
+
